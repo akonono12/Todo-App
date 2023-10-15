@@ -37,7 +37,7 @@ public class SetTodoItemBackgroundColorCommandHandler : IRequestHandler<SetTodoI
             throw new NotFoundException(nameof(TodoItem), request.Id);
         }
 
-        entity.BGColor = request.BGColor;
+        entity.SetBackGroundColor(request.BGColor);
 
         await _context.SaveChangesAsync(cancellationToken);
 

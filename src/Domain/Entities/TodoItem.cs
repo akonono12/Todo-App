@@ -28,4 +28,10 @@ public class TodoItem : BaseAuditableEntity
     }
 
     public TodoList List { get; set; } = null!;
+
+
+    public void SetBackGroundColor(string color)
+    {
+        BGColor = color;
+    }
 }
