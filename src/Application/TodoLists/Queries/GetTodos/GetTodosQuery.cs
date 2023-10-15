@@ -22,6 +22,10 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
 
     public async Task<TodosVm> Handle(GetTodosQuery request, CancellationToken cancellationToken)
     {
+        var result = await _context.TodoLists.AsNoTracking()
+            .Include(x => x.Items)
+            .ToListAsync(cancellationToken);
+
         return new TodosVm
         {
             PriorityLevels = Enum.GetValues(typeof(PriorityLevel))

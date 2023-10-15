@@ -54,6 +54,10 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2)
                         .HasColumnType("nvarchar(2)");
 
+                    b.Property<string>("BGColor")
+                      .HasMaxLength(200)
+                      .HasColumnType("nvarchar(200)");
+
                     b.Property<int>("Priority")
                         .HasColumnType("int");
 

@@ -20,6 +20,7 @@ export interface ITodoItemsClient {
     create(command: CreateTodoItemCommand): Observable<number>;
     update(id: number, command: UpdateTodoItemCommand): Observable<FileResponse>;
     delete(id: number): Observable<FileResponse>;
+    set(id: number, command: SetTodoItemBackgroundColorCommand): Observable<FileResponse>;
     updateItemDetails(id: number | undefined, command: UpdateTodoItemDetailCommand): Observable<FileResponse>;
 }
 
@@ -232,6 +233,59 @@ export class TodoItemsClient implements ITodoItemsClient {
     }
 
     protected processDelete(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    set(id: number, command: SetTodoItemBackgroundColorCommand): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/api/TodoItems/todo-item-background/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse>;
+        }));
+    }
+
+    protected processSet(response: HttpResponseBase): Observable<FileResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -721,6 +775,7 @@ export class TodoItemBriefDto implements ITodoItemBriefDto {
     id?: number;
     listId?: number;
     title?: string | undefined;
+    bgColor?: string | undefined;
     done?: boolean;
 
     constructor(data?: ITodoItemBriefDto) {
@@ -737,6 +792,7 @@ export class TodoItemBriefDto implements ITodoItemBriefDto {
             this.id = _data["id"];
             this.listId = _data["listId"];
             this.title = _data["title"];
+            this.bgColor = _data["bgColor"];
             this.done = _data["done"];
         }
     }
@@ -753,6 +809,7 @@ export class TodoItemBriefDto implements ITodoItemBriefDto {
         data["id"] = this.id;
         data["listId"] = this.listId;
         data["title"] = this.title;
+        data["bgColor"] = this.bgColor;
         data["done"] = this.done;
         return data;
     }
@@ -762,6 +819,7 @@ export interface ITodoItemBriefDto {
     id?: number;
     listId?: number;
     title?: string | undefined;
+    bgColor?: string | undefined;
     done?: boolean;
 }
 
@@ -847,6 +905,46 @@ export interface IUpdateTodoItemCommand {
     id?: number;
     title?: string | undefined;
     done?: boolean;
+}
+
+export class SetTodoItemBackgroundColorCommand implements ISetTodoItemBackgroundColorCommand {
+    id?: number;
+    bgColor?: string | undefined;
+
+    constructor(data?: ISetTodoItemBackgroundColorCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.bgColor = _data["bgColor"];
+        }
+    }
+
+    static fromJS(data: any): SetTodoItemBackgroundColorCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetTodoItemBackgroundColorCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["bgColor"] = this.bgColor;
+        return data;
+    }
+}
+
+export interface ISetTodoItemBackgroundColorCommand {
+    id?: number;
+    bgColor?: string | undefined;
 }
 
 export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand {
@@ -1060,6 +1158,7 @@ export class TodoItemDto implements ITodoItemDto {
     id?: number;
     listId?: number;
     title?: string | undefined;
+    bgColor?: string | undefined;
     done?: boolean;
     priority?: number;
     note?: string | undefined;
@@ -1078,6 +1177,7 @@ export class TodoItemDto implements ITodoItemDto {
             this.id = _data["id"];
             this.listId = _data["listId"];
             this.title = _data["title"];
+            this.bgColor = _data["bgColor"];
             this.done = _data["done"];
             this.priority = _data["priority"];
             this.note = _data["note"];
@@ -1096,6 +1196,7 @@ export class TodoItemDto implements ITodoItemDto {
         data["id"] = this.id;
         data["listId"] = this.listId;
         data["title"] = this.title;
+        data["bgColor"] = this.bgColor;
         data["done"] = this.done;
         data["priority"] = this.priority;
         data["note"] = this.note;
@@ -1107,6 +1208,7 @@ export interface ITodoItemDto {
     id?: number;
     listId?: number;
     title?: string | undefined;
+    bgColor?: string | undefined;
     done?: boolean;
     priority?: number;
     note?: string | undefined;

@@ -14,6 +14,7 @@ import {
   styleUrls: ['./todo.component.scss']
 })
 export class TodoComponent implements OnInit {
+
   debug = false;
   deleting = false;
   deleteCountDown = 0;
@@ -22,6 +23,16 @@ export class TodoComponent implements OnInit {
   priorityLevels: PriorityLevelDto[];
   selectedList: TodoListDto;
   selectedItem: TodoItemDto;
+  preDefinedColors: string[] = [
+    '#FFFFFF',
+    '#FF5733',
+    '#FFC300',
+    '#FFFF66',
+    '#CCFF99',
+    '#6666FF',
+    '#9966CC',
+    '#999999'
+  ];
   newListEditor: any = {};
   listOptionsEditor: any = {};
   newListModalRef: BsModalRef;
@@ -176,6 +187,7 @@ export class TodoComponent implements OnInit {
       listId: this.selectedList.id,
       priority: this.priorityLevels[0].value,
       title: '',
+
       done: false
     } as TodoItemDto;
 
@@ -260,5 +272,13 @@ export class TodoComponent implements OnInit {
     clearInterval(this.deleteCountDownInterval);
     this.deleteCountDown = 0;
     this.deleting = false;
+  }
+
+  setTodoItemBackgroundColor(item:TodoItemDto) {
+    this.itemsClient.set(item.id,item).subscribe(
+      () =>
+      (alert("Successfully Updated")),
+      error => console.error(error)
+    );
   }
 }
