@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Todo_App.Domain.Entities;
 
 #nullable disable
 
@@ -445,8 +446,11 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+           
+
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoItem", b =>
                 {
+                    
                     b.HasOne("Todo_App.Domain.Entities.TodoList", "List")
                         .WithMany("Items")
                         .HasForeignKey("ListId")
@@ -458,6 +462,7 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoList", b =>
                 {
+                   
                     b.OwnsOne("Todo_App.Domain.ValueObjects.Colour", "Colour", b1 =>
                         {
                             b1.Property<int>("TodoListId")

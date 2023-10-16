@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Todo_App.Domain.Entities;
 
 #nullable disable
 
@@ -43,6 +44,12 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Deleted")
+                       .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ListId")
@@ -88,6 +95,12 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                      b.Property<DateTime?>("Deleted")
+                       .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -443,6 +456,10 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+
+            //modelBuilder.Entity<TodoItem>().HasQueryFilter(x => x.Deleted == null); 
+            //modelBuilder.Entity<TodoList>().HasQueryFilter(x => x.Deleted == null);
+
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoItem", b =>
                 {
                     b.HasOne("Todo_App.Domain.Entities.TodoList", "List")
@@ -454,6 +471,8 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                     b.Navigation("List");
                 });
 
+
+        
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoList", b =>
                 {
                     b.OwnsOne("Todo_App.Domain.ValueObjects.Colour", "Colour", b1 =>
@@ -467,11 +486,14 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
 
                             b1.HasKey("TodoListId");
 
+                           
+
                             b1.ToTable("TodoLists");
 
                             b1.WithOwner()
                                 .HasForeignKey("TodoListId");
                         });
+
 
                     b.Navigation("Colour")
                         .IsRequired();

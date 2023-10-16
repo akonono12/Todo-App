@@ -50,6 +50,15 @@ public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
                 entry.Entity.LastModifiedBy = _currentUserService.UserId;
                 entry.Entity.LastModified = _dateTime.Now;
             }
+
+
+            if (entry.State == EntityState.Deleted)
+            {
+              
+                entry.State = EntityState.Modified;
+                entry.Entity.DeletedBy = _currentUserService.UserId;
+                entry.Entity.Deleted = _dateTime.Now;
+            }
         }
     }
 }
