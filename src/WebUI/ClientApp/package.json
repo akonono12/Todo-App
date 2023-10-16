@@ -10,7 +10,8 @@
     "build": "ng build",
     "build:ssr": "ng run Todo_App.WebUI:server:dev",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "postinstall": "ngcc"
   },
   "private": true,
   "dependencies": {

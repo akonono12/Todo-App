@@ -33,7 +33,7 @@ public class GetTodosTests : BaseTestFixture
             Colour = Colour.Blue,
             Items =
                     {
-                        new TodoItem { Title = "Apples", Done = true },
+                        new TodoItem { Title = "Apples", Done = true},
                         new TodoItem { Title = "Milk", Done = true },
                         new TodoItem { Title = "Bread", Done = true },
                         new TodoItem { Title = "Toilet paper" },

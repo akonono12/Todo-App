@@ -7,7 +7,7 @@
 <div *ngIf="lists">
 
   <div class="row">
-    <div class="col-sm-4">
+    <div class="col-sm-3">
       <div class="clearfix">
         <h2 class="float-start">Lists</h2>
         <button class="btn btn-default float-end" title="New List..."
@@ -29,7 +29,7 @@
         </li>
       </ul>
     </div>
-    <div class="col-sm-8" *ngIf="selectedList">
+    <div class="col-sm-6" *ngIf="selectedList">
       <div class="clearfix">
         <h2 class="float-start">{{ selectedList.title }}</h2>
         <button id="listOptions" class="btn btn-default float-end" title="List Options..."
@@ -52,8 +52,12 @@
                 <span>{{ item.title }}</span>
               </div>
             </div>
-            <div class="todo-item-commands">
-              <button *ngIf="item.id != 0" (click)="showItemDetailsModal(itemDetailsModalTemplate, item)"
+            <div class="todo-item-commands" *ngIf="item.id != 0">
+              <button (click)="showTagsModal(tagsModalTemplate,item.tags,item)"
+                class="btn btn-default btn-xs" role="button">
+                <i class="bi bi-hash"></i>
+              </button>
+              <button  (click)="showItemDetailsModal(itemDetailsModalTemplate, item)"
                 class="btn btn-default btn-xs" role="button">
                 <i class="bi bi-three-dots-vertical"></i>
               </button>
@@ -63,6 +67,34 @@
         <li class="list-group-item" (click)="addItem()">
           <button class="btn btn-default">Add Item...</button>
         </li>
+      </ul>
+    </div>
+    <div class="col-sm-3" *ngIf="selectedList">
+      <div class="card">
+        <div class="card-header">
+          Filter By:
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="inputListTitle">Item Name</label>
+            <input type="text" class="form-control" id="inputListTitle" [(ngModel)]="searchItemName" placeholder="Item name" />
+          </div>
+          <div class="form-group">
+            <label for="selectTag">Tags</label>
+            <select class="form-control" id="selectTag" [(ngModel)]="searchTagOption">
+              <option value="">Select</option>
+              <option  [value]="tag.name"  *ngFor="let tag of tagOptions">{{ tag.name }}</option>
+            </select>
+          </div>
+          <br>
+          <button class="btn btn-primary" (click)="search()">Search</button> &nbsp;
+          <button class="btn btn-primary" (click)="reset()">Clear</button>
+        </div>
+      </div>
+      <h4>Top 10 Most Used Tag</h4>
+      <br>
+      <ul>
+        <li *ngFor="let tag of mostUsedTags">{{tag.name}}</li>
       </ul>
     </div>
   </div>
@@ -190,6 +222,29 @@
     <div class="float-end">
       <button class="btn btn-default" (click)="newListCancelled()">Cancel</button>
       <button class="btn btn-primary" (click)="addList()">Create</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #tagsModalTemplate>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Tags</h4>
+    <button type="button" class="close btn-close pull-right" aria-label="Close" (click)="closeTagsModal()">
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="title"><span style="font-weight: bold;">Tag Lists: </span> <span>Please seperate each tag with ; . Ex: day;happy</span></label>
+      <textarea type="text" class="form-control" row="2" id="tag" placeholder="" [(ngModel)]="tagString" (keyup.enter)="addTag()">
+      </textarea>
+      <br>
+      <ul class="tag">
+        <li *ngFor="let tag of tags">{{tag.name}} &nbsp;<span class="close btn-close pull-right" (click)="removeTag(tag)"></span></li>
+      </ul>
+    </div>
+    <div *ngIf="debug">
+      <pre>{{ newListEditor | json }}</pre>
     </div>
   </div>
 </ng-template>
