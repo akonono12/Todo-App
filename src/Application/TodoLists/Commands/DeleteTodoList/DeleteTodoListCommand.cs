@@ -30,6 +30,11 @@ public class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListComman
 
         _context.TodoLists.Remove(entity);
 
+        foreach (var item in entity.Items) 
+        {
+            _context.TodoItems.Remove(item);
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

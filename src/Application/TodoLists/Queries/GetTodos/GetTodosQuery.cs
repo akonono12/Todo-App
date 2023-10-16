@@ -22,6 +22,42 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
 
     public async Task<TodosVm> Handle(GetTodosQuery request, CancellationToken cancellationToken)
     {
+        var list = new List<TodoListDto>();
+        var result = await _context.TodoLists
+                .AsNoTracking()
+                .AsQueryable()
+                .Include(x => x.Items.Where(i => i.Deleted == null))
+                .Where(x => x.Deleted == null)
+                .OrderBy(t => t.Title)
+                .ToListAsync(cancellationToken);
+
+        foreach ( var todoList in result)
+        {
+            var items = new List<TodoItemDto>();
+
+            foreach (var todoItem in todoList.Items)
+            {
+                items.Add(new TodoItemDto() 
+                { 
+                    Title = todoItem.Title,
+                    Done = todoItem.Done,
+                    Id = todoItem.Id,
+                    ListId = todoItem.ListId,
+                    Note = todoItem.Note,
+                    Priority = (int)todoItem.Priority
+                });
+            }
+            list.Add(new TodoListDto()
+            {
+                Colour = todoList.Colour,
+                Id = todoList.Id,
+                Title = todoList.Title,
+                Items = items
+            });
+
+           
+        }
+
         return new TodosVm
         {
             PriorityLevels = Enum.GetValues(typeof(PriorityLevel))
@@ -29,11 +65,7 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
                 .Select(p => new PriorityLevelDto { Value = (int)p, Name = p.ToString() })
                 .ToList(),
 
-            Lists = await _context.TodoLists
-                .AsNoTracking()
-                .ProjectTo<TodoListDto>(_mapper.ConfigurationProvider)
-                .OrderBy(t => t.Title)
-                .ToListAsync(cancellationToken)
+            Lists = list
         };
     }
 }
