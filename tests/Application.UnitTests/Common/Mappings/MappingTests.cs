@@ -3,6 +3,7 @@ using AutoMapper;
 using NUnit.Framework;
 using Todo_App.Application.Common.Mappings;
 using Todo_App.Application.Common.Models;
+using Todo_App.Application.Tags.DTOs;
 using Todo_App.Application.TodoLists.Queries.GetTodos;
 using Todo_App.Domain.Entities;
 
@@ -32,6 +33,7 @@ public class MappingTests
     [TestCase(typeof(TodoItem), typeof(TodoItemDto))]
     [TestCase(typeof(TodoList), typeof(LookupDto))]
     [TestCase(typeof(TodoItem), typeof(LookupDto))]
+    [TestCase(typeof(Tag), typeof(TagDto))]
     public void ShouldSupportMappingFromSourceToDestination(Type source, Type destination)
     {
         var instance = GetInstanceOf(source);

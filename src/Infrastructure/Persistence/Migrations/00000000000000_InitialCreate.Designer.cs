@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Todo_App.Infrastructure.Persistence.Configurations;
 
 #nullable disable
 
@@ -24,6 +25,7 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+     
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoItem", b =>
                 {
                     b.Property<int>("Id")
@@ -445,6 +447,8 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+           
+
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoItem", b =>
                 {
                     b.HasOne("Todo_App.Domain.Entities.TodoList", "List")
@@ -452,9 +456,12 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                
 
                     b.Navigation("List");
                 });
+
+        
 
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoList", b =>
                 {
@@ -530,10 +537,14 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+          
+
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoList", b =>
                 {
                     b.Navigation("Items");
                 });
+
+          
 #pragma warning restore 612, 618
         }
     }

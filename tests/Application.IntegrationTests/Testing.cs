@@ -8,7 +8,6 @@ using NUnit.Framework;
 using Respawn;
 using Todo_App.Infrastructure.Identity;
 using Todo_App.Infrastructure.Persistence;
-
 namespace Todo_App.Application.IntegrationTests;
 
 [SetUpFixture]
@@ -105,7 +104,17 @@ public partial class Testing
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        return await context.FindAsync<TEntity>(keyValues);
+        var query = context.Set<TEntity>().AsQueryable();
+       
+        var keyName = context.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey().Properties[0].Name;
+        query = query.Where(e => EF.Property<object>(e, keyName) == keyValues[0]);
+
+        // Use reflection to load sub-entities
+        foreach (var property in context.Model.FindEntityType(typeof(TEntity)).GetNavigations())
+        {
+            query = query.Include(property.Name);
+        }
+        return await query.FirstOrDefaultAsync();
     }
 
     public static async Task AddAsync<TEntity>(TEntity entity)

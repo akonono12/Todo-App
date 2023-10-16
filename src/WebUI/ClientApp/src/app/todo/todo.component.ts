@@ -1,3 +1,4 @@
+import { TagsClient, RemoveTagCommand, AddTagsCommand} from './../web-api-client';
 import { Component, TemplateRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
@@ -5,7 +6,7 @@ import {
   TodoListsClient, TodoItemsClient,
   TodoListDto, TodoItemDto, PriorityLevelDto,
   CreateTodoListCommand, UpdateTodoListCommand,
-  CreateTodoItemCommand, UpdateTodoItemDetailCommand
+  CreateTodoItemCommand, UpdateTodoItemDetailCommand, TagDto
 } from '../web-api-client';
 
 @Component({
@@ -22,9 +23,18 @@ export class TodoComponent implements OnInit {
   priorityLevels: PriorityLevelDto[];
   selectedList: TodoListDto;
   selectedItem: TodoItemDto;
+  tags: TagDto[] = [];
+  tagItemId: number;
+  listId: number;
+  tagString:string = "";
   newListEditor: any = {};
   listOptionsEditor: any = {};
   newListModalRef: BsModalRef;
+  mostUsedTags:TagDto[];
+  tagOptions:TagDto[];
+  searchItemName:string;
+  searchTagOption:string ="";
+  tagsModalRef:BsModalRef;
   listOptionsModalRef: BsModalRef;
   deleteListModalRef: BsModalRef;
   itemDetailsModalRef: BsModalRef;
@@ -37,6 +47,7 @@ export class TodoComponent implements OnInit {
 
 
   constructor(
+    private tagsClient:TagsClient,
     private listsClient: TodoListsClient,
     private itemsClient: TodoItemsClient,
     private modalService: BsModalService,
@@ -44,18 +55,24 @@ export class TodoComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+   this.loadList();
+  }
+
+  loadList(){
     this.listsClient.get().subscribe(
       result => {
         this.lists = result.lists;
         this.priorityLevels = result.priorityLevels;
         if (this.lists.length) {
-          this.selectedList = this.lists[0];
-        }
+          this.selectedList = this.lists.find(x => x.id ==  this.listId) ?? this.lists[0];
+         }
+         this.loadMostUsedTag();
+         this.loadTagOptions();
+        this.tags = this.selectedList.items.find(x => x.id == this.tagItemId).tags
       },
       error => console.error(error)
     );
   }
-
   // Lists
   remainingItems(list: TodoListDto): number {
     return list.items.filter(t => !t.done).length;
@@ -64,6 +81,25 @@ export class TodoComponent implements OnInit {
   showNewListModal(template: TemplateRef<any>): void {
     this.newListModalRef = this.modalService.show(template);
     setTimeout(() => document.getElementById('title').focus(), 250);
+  }
+
+  showTagsModal(template: TemplateRef<any>,tags:TagDto[],item:TodoItemDto): void {
+    this.tagsModalRef = this.modalService.show(template,{backdrop:"static"});
+    this.tags = tags;
+    this.tagItemId = item.id;
+    this.listId = item.listId;
+  }
+
+  closeTagsModal(){
+    if(this.searchItemName || this.searchTagOption){
+      this.loadItems()
+    }else{
+      this.loadList()
+    }
+    this.tagsModalRef.hide();
+    this.tags = [];
+    this.tagItemId = null;
+    this.listId = null;
   }
 
   newListCancelled(): void {
@@ -260,5 +296,79 @@ export class TodoComponent implements OnInit {
     clearInterval(this.deleteCountDownInterval);
     this.deleteCountDown = 0;
     this.deleting = false;
+  }
+
+  removeTag(tag:TagDto){
+    let command = new RemoveTagCommand({itemId:this.tagItemId,tag:tag.name});
+    this.tagsClient.remove(this.tagItemId as unknown as string,command).subscribe(
+      () =>
+      {
+        this.tags = this.tags.filter(x => x.id != tag.id);
+        alert(`Successfully Deleted Tag: ${tag.name} `);
+      },
+      error => console.error(error)
+    );
+  }
+
+  addTag()
+  {
+    let command = new AddTagsCommand({itemId:this.tagItemId,tags:this.tagString});
+    this.tagsClient.add(command).subscribe(
+      () =>
+      {
+      if(this.searchItemName || this.searchTagOption){
+        this.loadItems()
+      }else{
+        this.loadList()
+      }
+       this.tagString = "";
+       alert("Successfully Added all the tags");
+      },
+      error => console.error(error)
+    );
+  }
+
+  loadMostUsedTag()
+  {
+    this.tagsClient.getMostUsedTag(this.selectedList.id).subscribe(
+      data => {
+        this.mostUsedTags = data
+      },
+      error => console.error(error)
+      )
+  }
+
+  loadTagOptions()
+  {
+    this.tagsClient.getTagOptions(this.selectedList.id).subscribe(
+      data => {
+        this.tagOptions = data
+
+      },
+      error => console.error(error)
+      )
+  }
+
+  search()
+  {
+    this.loadItems();
+    console.log(this.searchTagOption)
+  }
+
+  reset()
+  {
+    this.searchItemName = null;
+    this.searchTagOption = "";
+    this.loadList();
+  }
+
+  loadItems(){
+    this.itemsClient.getTodoItemsWithPagination(this.selectedList.id,this.searchItemName,this.searchTagOption).subscribe(
+      data => {
+        this.selectedList.items = data
+        this.loadMostUsedTag();
+      },
+      error => console.error(error)
+    )
   }
 }

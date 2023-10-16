@@ -36,3 +36,21 @@
 .modal-footer {
   display: block;
 }
+
+
+.tag {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tag li {
+  display: inline-block;
+  font-size: 20px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  margin-top: -1px;
+  background-color: #f6f6f6;
+  border-radius: 25px;
+}
+
