@@ -2,6 +2,7 @@
 using Todo_App.Application.Common.Interfaces;
 using Todo_App.Domain.Entities;
 using Todo_App.Domain.Events;
+using Todo_App.Domain.ValueObjects;
 
 namespace Todo_App.Application.TodoItems.Commands.CreateTodoItem;
 
@@ -27,7 +28,9 @@ public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemComman
         {
             ListId = request.ListId,
             Title = request.Title,
+            BGColor = Colour.Blue,
             Done = false
+           
         };
 
         entity.AddDomainEvent(new TodoItemCreatedEvent(entity));

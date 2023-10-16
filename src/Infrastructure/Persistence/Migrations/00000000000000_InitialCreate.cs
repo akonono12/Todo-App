@@ -237,6 +237,7 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                     ListId = table.Column<int>(type: "int", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Note = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: true),
+                    BGColor = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Priority = table.Column<int>(type: "int", nullable: false),
                     Reminder = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Done = table.Column<bool>(type: "bit", nullable: false),
@@ -340,6 +341,8 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+               name: "TodoItems");
+            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -362,9 +365,6 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "PersistedGrants");
-
-            migrationBuilder.DropTable(
-                name: "TodoItems");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

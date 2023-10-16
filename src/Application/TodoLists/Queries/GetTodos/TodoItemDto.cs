@@ -12,6 +12,8 @@ public class TodoItemDto : IMapFrom<TodoItem>
 
     public string? Title { get; set; }
 
+    public string? BGColor { get; set; }
+
     public bool Done { get; set; }
 
     public int Priority { get; set; }

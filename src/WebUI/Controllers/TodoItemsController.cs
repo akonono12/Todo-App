@@ -35,6 +35,19 @@ public class TodoItemsController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPut("todo-item-background/{id}")]
+    public async Task<ActionResult> Set(int id, SetTodoItemBackgroundColorCommand command)
+    {
+        if (id != command.Id)
+        {
+            return BadRequest();
+        }
+
+        await Mediator.Send(command);
+
+        return NoContent();
+    }
+
     [HttpPut("[action]")]
     public async Task<ActionResult> UpdateItemDetails(int id, UpdateTodoItemDetailCommand command)
     {

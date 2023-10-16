@@ -38,18 +38,33 @@
         </button>
       </div>
       <ul id="todo-items" class="list-group mb-2">
-        <li class="list-group-item" *ngFor="let item of selectedList.items; index as i">
+        <li class="list-group-item" *ngFor="let item of selectedList.items; index as i" [style.background-color]="item.bgColor">
           <div class="d-flex">
             <div class="todo-item-checkbox">
               <input type="checkbox" [(ngModel)]="item.done" (change)="updateItem(item)" />
             </div>
-            <div class="flex-fill">
+            <div class="flex-fill" *ngIf="item.id != 0" [style.background]="item.bgColor"
+              [cpPresetColors]="preDefinedColors"
+              [(colorPicker)]="item.bgColor"
+              (colorPickerSelect)="setTodoItemBackgroundColor(item)">
+
+                <input id="{{ 'itemTitle' + i }}" *ngIf="item == selectedItem" type="text"
+                  class="form-control item-input-control" [(ngModel)]="item.title" (keyup.enter)="updateItem(item, true)"
+                  (blur)="updateItem(item)" autofocus="autofocus" />
+                <div class="todo-item-title" *ngIf="item != selectedItem" [ngClass]="{ 'done-todo': item.done }"
+                  (click)="editItem(item, 'itemTitle' + i)" class="form-control item-input-control">
+                  <span >{{ item.title }}
+                  </span>
+                </div>
+              </div>
+            <div class="flex-fill" *ngIf="item.id == 0">
               <input id="{{ 'itemTitle' + i }}" *ngIf="item == selectedItem" type="text"
                 class="form-control item-input-control" [(ngModel)]="item.title" (keyup.enter)="updateItem(item, true)"
                 (blur)="updateItem(item)" autofocus="autofocus" />
               <div class="todo-item-title" *ngIf="item != selectedItem" [ngClass]="{ 'done-todo': item.done }"
                 (click)="editItem(item, 'itemTitle' + i)" class="form-control item-input-control">
-                <span>{{ item.title }}</span>
+                <span >{{ item.title }}
+                </span>
               </div>
             </div>
             <div class="todo-item-commands">

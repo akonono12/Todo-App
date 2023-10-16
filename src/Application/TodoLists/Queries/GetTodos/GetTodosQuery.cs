@@ -22,6 +22,8 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
 
     public async Task<TodosVm> Handle(GetTodosQuery request, CancellationToken cancellationToken)
     {
+
+
         return new TodosVm
         {
             PriorityLevels = Enum.GetValues(typeof(PriorityLevel))

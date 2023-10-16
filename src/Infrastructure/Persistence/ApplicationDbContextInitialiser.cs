@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Drawing;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Todo_App.Domain.Entities;
+using Todo_App.Domain.ValueObjects;
 using Todo_App.Infrastructure.Identity;
 
 namespace Todo_App.Infrastructure.Persistence;
@@ -78,10 +80,10 @@ public class ApplicationDbContextInitialiser
                 Title = "Todo List",
                 Items =
                 {
-                    new TodoItem { Title = "Make a todo list 📃" },
-                    new TodoItem { Title = "Check off the first item ✅" },
-                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯"},
-                    new TodoItem { Title = "Reward yourself with a nice, long nap 🏆" },
+                    new TodoItem { Title = "Make a todo list 📃",BGColor = Colour.Blue },
+                    new TodoItem { Title = "Check off the first item ✅" ,BGColor = Colour.Green },
+                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯" ,BGColor = Colour.Grey},
+                    new TodoItem { Title = "Reward yourself with a nice, long nap 🏆",BGColor = Colour.Orange },
                 }
             });
 
